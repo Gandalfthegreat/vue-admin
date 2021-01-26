@@ -20,12 +20,15 @@
               <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
               <button class="destroy" @click="removeItem(todo)"></button>
             </div>
+            <input class="edit" v-model="editedTodo.title" @keyup.enter="doneEdit(todo)" />
           </li>
         </ul>
       </section>
       <footer class="footer" v-show="todos.length">
-        <span class="todo-count"></span>
-        <button class="clear-completed">clear</button>
+        <span
+          class="todo-count"
+        >{{ remaining }} {{ remaining | pluralize }} / {{ todos.length }} {{ remaining | total }}</span>
+        <button class="clear-completed" @click="removeCompleted">clear</button>
       </footer>
     </div>
   </div>
@@ -38,8 +41,21 @@ export default {
     return {
       todos: [],
       newTodo: "",
-      editedTodo: "",
+      editedTodo: {},
     };
+  },
+  computed: {
+    remaining() {
+      return this.todos.filter((x) => !x.completed).length;
+    },
+  },
+  filters: {
+    pluralize(num) {
+      return num > 1 ? "items" : "item";
+    },
+    total(num) {
+      return num > 3 ? "total" : "";
+    },
   },
   methods: {
     addTodo() {
@@ -57,6 +73,18 @@ export default {
       // 找到待删除项index
       const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
       this.todos.splice(toRemoveIndex, 1);
+    },
+    editTodo(todo) {
+      this.editedTodo = { ...todo };
+    },
+    doneEdit(todo) {
+      this.todos = this.todos.map((x) => {
+        return x.id === todo.id ? { ...this.editedTodo } : { ...x };
+      });
+      this.editedTodo = {};
+    },
+    removeCompleted() {
+      this.todos = this.todos.filter((x) => !x.completed);
     },
   },
 };
