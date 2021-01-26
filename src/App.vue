@@ -15,12 +15,11 @@
             :key="todo.id"
           >
             <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
-            <div class="view">
-              <input class="toggle" type="checkbox" v-model="todo.completed" />
-              <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-              <button class="destroy" @click="removeItem(todo)"></button>
-            </div>
-            <input class="edit" v-model="editedTodo.title" @keyup.enter="doneEdit(todo)" />
+            <todo-item
+              :title.sync="todo.title"
+              :completed.sync="todo.completed"
+              @delete="removeItem(todo)"
+            ></todo-item>
           </li>
         </ul>
       </section>
@@ -36,6 +35,7 @@
 
 <script>
 let id = 1;
+import TodoItem from "./TodoItem";
 export default {
   data() {
     return {
@@ -43,6 +43,9 @@ export default {
       newTodo: "",
       editedTodo: {},
     };
+  },
+  components: {
+    "todo-item": TodoItem,
   },
   computed: {
     remaining() {
@@ -73,15 +76,6 @@ export default {
       // 找到待删除项index
       const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
       this.todos.splice(toRemoveIndex, 1);
-    },
-    editTodo(todo) {
-      this.editedTodo = { ...todo };
-    },
-    doneEdit(todo) {
-      this.todos = this.todos.map((x) => {
-        return x.id === todo.id ? { ...this.editedTodo } : { ...x };
-      });
-      this.editedTodo = {};
     },
     removeCompleted() {
       this.todos = this.todos.filter((x) => !x.completed);
