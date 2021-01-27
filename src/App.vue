@@ -4,7 +4,7 @@
       <header class="header">
         <h1>TodoList</h1>
         <!-- 点击回车，新建一个todo项-->
-        <input class="new-todo" @keydown.enter="addTodo" v-model="newTodo" />
+        <input class="new-todo" @keydown.enter="addTodo" v-model="newTodo" v-autofocus />
       </header>
       <section class="main">
         <ul class="todo-list">
@@ -20,11 +20,17 @@
               <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
               <button class="destroy" @click="removeItem(todo)"></button>
             </div>
+            <input
+              class="edit"
+              type="text"
+              v-model="editedTodo.title"
+              @keyup.enter="doneEdit(editedTodo)"
+            />
           </li>
         </ul>
       </section>
       <footer class="footer" v-show="todos.length">
-        <span class="todo-count"></span>
+        <span class="todo-count">{{remaining }} {{remaining | pluralize}}</span>
         <button class="clear-completed">clear</button>
       </footer>
     </div>
@@ -38,12 +44,40 @@ export default {
     return {
       todos: [],
       newTodo: "",
-      editedTodo: "",
+      editedTodo: {},
     };
   },
+  directives: {
+    autofocus: {
+      inserted: function (el) {
+        el.focus();
+      },
+    },
+  },
+  computed: {
+    remaining() {
+      return this.todos.filter((x) => !x.completed).length;
+    },
+  },
+  filters: {
+    pluralize(num) {
+      return num > 1 ? "items" : "item";
+    },
+  },
   methods: {
+    editTodo(todo) {
+      this.editedTodo = { ...todo };
+    },
+    doneEdit(todo) {
+      //在todos中找到todo这项，替换；其他的项保持不动
+      this.todos = this.todos.map((x) => {
+        return x.id === todo.id ? { ...todo } : { ...x };
+      });
+      this.editedTodo = {};
+    },
     addTodo() {
       if (!this.newTodo) {
+        console.log(new Error("不能输入空的item"));
         return;
       }
       this.todos.unshift({
