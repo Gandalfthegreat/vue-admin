@@ -15,17 +15,7 @@
             :key="todo.id"
           >
             <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
-            <div class="view">
-              <input class="toggle" type="checkbox" v-model="todo.completed" />
-              <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-              <button class="destroy" @click="removeItem(todo)"></button>
-            </div>
-            <input
-              class="edit"
-              type="text"
-              v-model="editedTodo.title"
-              @keyup.enter="doneEdit(editedTodo)"
-            />
+            <todo-item :title.sync="todo.title" :completed.sync="todo.completed"></todo-item>
           </li>
         </ul>
       </section>
@@ -39,30 +29,34 @@
 
 <script>
 let id = 1;
+import TodoItem from "./TodoItem";
 export default {
+  components: {
+    "todo-item": TodoItem
+  },
   data() {
     return {
       todos: [],
       newTodo: "",
-      editedTodo: {},
+      editedTodo: {}
     };
   },
   directives: {
     autofocus: {
-      inserted: function (el) {
+      inserted: function(el) {
         el.focus();
-      },
-    },
+      }
+    }
   },
   computed: {
     remaining() {
-      return this.todos.filter((x) => !x.completed).length;
-    },
+      return this.todos.filter(x => !x.completed).length;
+    }
   },
   filters: {
     pluralize(num) {
       return num > 1 ? "items" : "item";
-    },
+    }
   },
   methods: {
     editTodo(todo) {
@@ -70,7 +64,7 @@ export default {
     },
     doneEdit(todo) {
       //在todos中找到todo这项，替换；其他的项保持不动
-      this.todos = this.todos.map((x) => {
+      this.todos = this.todos.map(x => {
         return x.id === todo.id ? { ...todo } : { ...x };
       });
       this.editedTodo = {};
@@ -83,16 +77,16 @@ export default {
       this.todos.unshift({
         id: id++,
         title: this.newTodo,
-        completed: false,
+        completed: false
       });
       this.newTodo = "";
     },
     removeItem(todo) {
       // 找到待删除项index
-      const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
+      const toRemoveIndex = this.todos.findIndex(item => item.id === todo.id);
       this.todos.splice(toRemoveIndex, 1);
-    },
-  },
+    }
+  }
 };
 </script>
 
