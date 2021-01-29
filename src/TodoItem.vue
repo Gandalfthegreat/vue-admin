@@ -1,6 +1,6 @@
 
  <template>
-  <section>
+  <section :class="{editing: isEditing}">
     <div class="view">
       <input class="toggle" type="checkbox" @change="updateChecked($event.target.checked)" />
       <label @dblclick="editTodo(todo)">{{ title }}</label>
@@ -51,5 +51,13 @@ export default {
 </script>
     
  <style>
-@import "https://unpkg.com/todomvc-app-css@2.1.0/index.css";
+.todo-list li .editing .view {
+  display: none;
+}
+.todo-list li .editing .edit {
+  display: block;
+  width: 506px;
+  padding: 12px 16px;
+  margin: 0 0 0 43px;
+}
 </style>
