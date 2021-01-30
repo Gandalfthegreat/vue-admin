@@ -10,27 +10,14 @@
         <ul class="todo-list">
           <li
             class="todo"
-            :class="{completed: todo.completed,editing: todo.id === editedTodo.id}"
+            :class="{completed: todo.completed}"
             v-for="todo in todos"
             :key="todo.id"
-          >
-            <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
-            <div class="view">
-              <input class="toggle" type="checkbox" v-model="todo.completed" />
-              <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-              <button class="destroy" @click="removeItem(todo)"></button>
-            </div>
-            <input
-              class="edit"
-              type="text"
-              v-model="editedTodo.title"
-              @keyup.enter="doneEdit(editedTodo)"
-            />
-          </li>
+          ></li>
         </ul>
       </section>
       <footer class="footer" v-show="todos.length">
-        <span class="todo-count">{{remaining }} {{remaining | pluralize}}</span>
+        <span class="todo-count">{{ remaining }} {{remaining | pluralize}}</span>
         <button class="clear-completed">clear</button>
       </footer>
     </div>
@@ -58,6 +45,11 @@ export default {
     remaining() {
       return this.todos.filter((x) => !x.completed).length;
     },
+    computedTodos() {
+      return this.todos.filter((item) => {
+        return [item.title].includes(this.newTodo);
+      });
+    },
   },
   filters: {
     pluralize(num) {
@@ -76,6 +68,14 @@ export default {
       this.editedTodo = {};
     },
     addTodo() {
+      console.log(this);
+      this.todos.map();
+      for (let i = 0; i < this.todos.length; i++) {
+        if (this.todos.title === this.newTodo) {
+          return;
+        }
+      }
+
       if (!this.newTodo) {
         console.log(new Error("不能输入空的item"));
         return;
@@ -99,3 +99,4 @@ export default {
 <style>
 @import "https://unpkg.com/todomvc-app-css@2.1.0/index.css";
 </style>
+
