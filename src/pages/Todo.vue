@@ -11,7 +11,7 @@
           <li
             class="todo"
             :class="{completed: todo.completed,editing: todo.id === editedTodo.id}"
-            v-for="todo in todos"
+            v-for="todo in computedTodos"
             :key="todo.id"
           >
             <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
@@ -32,7 +32,7 @@
             <router-link :to="{query: {state: ''}}" active-class="selected" exact>All</router-link>
           </li>
           <li>
-            <router-link :to="{query: {state: 'acitve'}}" active-class="selected" exact>Active</router-link>
+            <router-link :to="{query: {state: 'active'}}" active-class="selected" exact>Active</router-link>
           </li>
           <li>
             <router-link :to="{query: {state: 'completed'}}" active-class="selected" exact>Completed</router-link>
@@ -52,34 +52,33 @@ export default {
     return {
       todos: [],
       newTodo: "",
-      editedTodo: {},
+      editedTodo: {}
     };
   },
   components: {
-    "todo-item": TodoItem,
+    "todo-item": TodoItem
   },
   computed: {
     remaining() {
-      return this.todos.filter((x) => !x.completed).length;
+      return this.todos.filter(x => !x.completed).length;
     },
     computedTodos() {
       const state = this.$route.query.state;
       console.log(state);
       return this.todos
-        .filter((x) => {
-          switch (state) {
-            case "active":
-              return !x.completed;
-            case "completed":
-              return x.completed;
-            default:
-              return true;
+        .filter(x => {
+          if (state === "active") {
+            return !x.completed;
+          } else if (state === "completed") {
+            return x.completed;
+          } else {
+            return true;
           }
         })
-        .filter((item) => {
+        .filter(item => {
           return item.title.indexOf(this.newTodo) !== -1;
         });
-    },
+    }
   },
   filters: {
     pluralize(num) {
@@ -87,7 +86,7 @@ export default {
     },
     total(num) {
       return num > 3 ? "total" : "";
-    },
+    }
   },
   methods: {
     addTodo() {
@@ -97,19 +96,19 @@ export default {
       this.todos.unshift({
         id: id++,
         title: this.newTodo,
-        completed: false,
+        completed: false
       });
       this.newTodo = "";
     },
     removeItem(todo) {
       // 找到待删除项index
-      const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
+      const toRemoveIndex = this.todos.findIndex(item => item.id === todo.id);
       this.todos.splice(toRemoveIndex, 1);
     },
     removeCompleted() {
-      this.todos = this.todos.filter((x) => !x.completed);
-    },
-  },
+      this.todos = this.todos.filter(x => !x.completed);
+    }
+  }
 };
 </script>
 

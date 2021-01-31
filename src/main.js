@@ -3,6 +3,7 @@ import Todo from "./pages/Todo.vue"
 import VueRouter from 'vue-router'
 import App from './App.vue'
 Vue.config.productionTip = false
+Vue.use(VueRouter);
 const routes = [
   { path: "/todo", component: Todo, name: "Todo" },
   { path: "*", redirect: { name: "Todo" } }
