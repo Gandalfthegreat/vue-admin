@@ -11,7 +11,7 @@
           <li
             class="todo"
             :class="{completed: todo.completed}"
-            v-for="todo in todos"
+            v-for="todo in computedTodo"
             :key="todo.id"
           >
             <todo-item
@@ -19,6 +19,7 @@
               @update:title="todo.title = $event"
               :completed="todo.completed"
               @update:completed="todo.completed = $event"
+              @delete="removeItem(todo)"
             ></todo-item>
             <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
           </li>
@@ -26,6 +27,7 @@
       </section>
       <footer class="footer" v-show="todos.length">
         <span class="todo-count">{{remaining }} {{remaining | pluralize}}</span>
+        <span class="total" v-if="greaterThan3()">/ {{ size }} {{ size | total }}</span>
         <button class="clear-completed">clear</button>
       </footer>
     </div>
@@ -41,7 +43,7 @@ export default {
   },
   data() {
     return {
-      todos: [],
+      todos: JSON.parse(localStorage.getItem("todos")) || [],
       newTodo: "",
       editedTodo: {},
     };
@@ -57,23 +59,26 @@ export default {
     remaining() {
       return this.todos.filter((x) => !x.completed).length;
     },
+    size() {
+      return this.todos.length;
+    },
+    computedTodo() {
+      return this.todos.filter((item) => {
+        return item.title.indexOf(this.newTodo) !== -1;
+      });
+    },
   },
   filters: {
     pluralize(num) {
-      console.log(this);
       return num > 1 ? "items" : "item";
+    },
+    total(length) {
+      return length > 3 ? "total" : "";
     },
   },
   methods: {
-    editTodo(todo) {
-      this.editedTodo = { ...todo };
-    },
-    doneEdit(todo) {
-      //在todos中找到todo这项，替换；其他的项保持不动
-      this.todos = this.todos.map((x) => {
-        return x.id === todo.id ? { ...todo } : { ...x };
-      });
-      this.editedTodo = {};
+    greaterThan3() {
+      return this.todos.length > 3;
     },
     addTodo() {
       if (!this.newTodo) {
@@ -93,11 +98,23 @@ export default {
       this.todos.splice(toRemoveIndex, 1);
     },
   },
+  watch: {
+    todos(newTodos) {
+      localStorage.setItem("todos", JSON.stringify(newTodos));
+    },
+  },
 };
 </script>
 
 <style>
 @import "https://unpkg.com/todomvc-app-css@2.1.0/index.css";
+.footer {
+  color: #777;
+  padding: 10px 15px;
+  height: 20px;
+  border-top: 1px solid #e6e6e6;
+  text-align: left;
+}
 </style>
 
 

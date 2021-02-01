@@ -4,7 +4,7 @@
     <div class="view">
       <input class="toggle" type="checkbox" @change="updateChecked($event)" />
       <label @dblclick="editTodo">{{ title }}</label>
-      <button class="destroy" @click="removeItem()"></button>
+      <button class="destroy" @click="removeItem"></button>
     </div>
     <input class="edit" v-model="editingTitle" @keyup.enter="doneEdit(todo)" />
   </section>
@@ -46,8 +46,9 @@ export default {
         this.isEditing = false;
       }
     },
-
-    removeItem() {},
+    removeItem() {
+      this.$emit("delete");
+    },
   },
 };
 </script>
