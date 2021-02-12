@@ -4,30 +4,32 @@
     <div class="view">
       <input class="toggle" type="checkbox" @change="updateChecked($event.target.checked)" />
       <label @dblclick="editTodo(todo)">{{ title }}</label>
-      <button class="destroy" @click="removeItem(todo)"></button>
+      <button class="destroy" @click="removeItem"></button>
     </div>
     <input class="edit" v-model="editingTitle" @keyup.enter="doneEdit(todo)" />
   </section>
 </template>
- 
+
  <script>
+import confirmDialog from "../utils/confirm";
+
 export default {
   name: "todo-item",
   data() {
     return {
       isEditing: false,
-      editingTitle: "",
+      editingTitle: ""
     };
   },
   props: {
     title: {
       type: String,
-      default: "",
+      default: ""
     },
     completed: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   methods: {
     updateChecked(completed) {
@@ -43,13 +45,22 @@ export default {
         this.isEditing = false;
       }
     },
-    removeTodo() {
-      this.$emit("delete");
-    },
-  },
+    removeItem() {
+      confirmDialog({
+        text: "确认删除吗？"
+      })
+        .then(res => {
+          console.log(res);
+          this.$emit("delete");
+        })
+        .catch(() => {
+          console.log("已取消");
+        });
+    }
+  }
 };
 </script>
-    
+
  <style>
 .todo-list li .editing .view {
   display: none;

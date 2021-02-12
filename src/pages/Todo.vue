@@ -11,7 +11,7 @@
           <li
             class="todo"
             :class="{completed: todo.completed,editing: todo.id === editedTodo.id}"
-            v-for="todo in todos"
+            v-for="todo in computedTodos"
             :key="todo.id"
           >
             <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
@@ -27,6 +27,17 @@
         <span
           class="todo-count"
         >{{ remaining }} {{ remaining | pluralize }} / {{ todos.length }} {{ remaining | total }}</span>
+        <ul class="filters">
+          <li>
+            <router-link :to="{query: {state: ''}}" active-class="selected" exact>All</router-link>
+          </li>
+          <li>
+            <router-link :to="{query: {state: 'active'}}" active-class="selected" exact>Active</router-link>
+          </li>
+          <li>
+            <router-link :to="{query: {state: 'completed'}}" active-class="selected" exact>Completed</router-link>
+          </li>
+        </ul>
         <button class="clear-completed" @click="removeCompleted">clear</button>
       </footer>
     </div>
@@ -35,7 +46,8 @@
 
 <script>
 let id = 1;
-import TodoItem from "../TodoItem";
+import TodoItem from "../components/TodoItem";
+
 export default {
   data() {
     return {
@@ -50,6 +62,23 @@ export default {
   computed: {
     remaining() {
       return this.todos.filter(x => !x.completed).length;
+    },
+    computedTodos() {
+      const state = this.$route.query.state;
+
+      return this.todos
+        .filter(x => {
+          if (state === "active") {
+            return !x.completed;
+          } else if (state === "completed") {
+            return x.completed;
+          } else {
+            return true;
+          }
+        })
+        .filter(item => {
+          return item.title.indexOf(this.newTodo) !== -1;
+        });
     }
   },
   filters: {
@@ -73,7 +102,6 @@ export default {
       this.newTodo = "";
     },
     removeItem(todo) {
-      // 找到待删除项index
       const toRemoveIndex = this.todos.findIndex(item => item.id === todo.id);
       this.todos.splice(toRemoveIndex, 1);
     },

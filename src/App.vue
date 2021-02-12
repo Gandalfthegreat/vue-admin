@@ -1,11 +1,39 @@
 <template>
   <div>
     <router-view></router-view>
+    <component
+      v-for="(item,index) in items"
+      :key="index"
+      :is="item.component"
+      :dialogInfo="item.dialogInfo"
+      @done="doneDialog(index)"
+    ></component>
   </div>
 </template>
 
 <script>
-export default {};
+import ConfirmDialog from "./components/ConfirmDialog";
+import vm from "./main";
+export default {
+  name: "app",
+  data() {
+    return {
+      items: []
+    };
+  },
+  mounted() {
+    this.$nextTick(() => {
+      vm.$on("setDialog", dialogInfo => {
+        this.items.push({ dialogInfo, component: ConfirmDialog });
+      });
+    });
+  },
+  methods: {
+    doneDialog(index) {
+      this.items.splice(index, 1);
+    }
+  }
+};
 </script>
 
 <style>
