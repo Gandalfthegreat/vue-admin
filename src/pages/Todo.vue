@@ -1,47 +1,44 @@
-
-
 <template>
   <div id="app">
     <div class="todoapp">
       <header class="header">
-        <!-- <h1>TodoList</h1> -->
-        <show-item title="component"></show-item>
+        <h1>TodoList</h1>
         <!-- 点击回车，新建一个todo项-->
-        <input class="new-todo" @keydown.enter="addTodo" v-model="newTodo" v-autofocus />
+        <input class="new-todo" @keydown.enter="addTodo" v-model="newTodo" />
       </header>
       <section class="main">
         <ul class="todo-list">
           <li
             class="todo"
-            :class="{completed: todo.completed}"
-            v-for="todo in computedTodo"
+            :class="{completed: todo.completed,editing: todo.id === editedTodo.id}"
+            v-for="todo in computedTodos"
             :key="todo.id"
           >
+            <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
             <todo-item
-              :title="todo.title"
-              @update:title="todo.title = $event"
-              :completed="todo.completed"
-              @update:completed="todo.completed = $event"
+              :title.sync="todo.title"
+              :completed.sync="todo.completed"
               @delete="removeItem(todo)"
             ></todo-item>
-            <!-- 1.checkbox选中做完的项 2.双击编辑 3.删除-->
           </li>
         </ul>
       </section>
       <footer class="footer" v-show="todos.length">
-        <span class="todo-count">{{remaining }} {{remaining | pluralize}}</span>
-        <button @click="sendAxios" class="clear-completed">clear</button>
+        <span
+          class="todo-count"
+        >{{ remaining }} {{ remaining | pluralize }} / {{ todos.length }} {{ remaining | total }}</span>
         <ul class="filters">
           <li>
-            <router-link :to="{query: {state: 'active'}}" exact>Active</router-link>
+            <router-link :to="{query: {state: ''}}" active-class="selected" exact>All</router-link>
           </li>
           <li>
-            <router-link :to="{query: {state: 'completed'}}" exact>Complete</router-link>
+            <router-link :to="{query: {state: 'active'}}" active-class="selected" exact>Active</router-link>
           </li>
           <li>
-            <router-link :to="{query: {state: ''}}" exact>All</router-link>
+            <router-link :to="{query: {state: 'completed'}}" active-class="selected" exact>Completed</router-link>
           </li>
         </ul>
+        <button class="clear-completed" @click="removeCompleted">clear</button>
       </footer>
     </div>
   </div>
@@ -49,66 +46,26 @@
 
 <script>
 let id = 1;
-import TodoItem from "../components/TodoItem.vue";
-import ShowItem from "../components/ShowItem.vue";
-import Axios from "axios";
+import TodoItem from "../components/TodoItem";
+
 export default {
-  components: {
-    "todo-item": TodoItem,
-    "show-item": ShowItem,
-  },
   data() {
     return {
-      todos: JSON.parse(localStorage.getItem("todos")) || [],
+      todos: [],
       newTodo: "",
       editedTodo: {},
     };
   },
-  methods: {
-    greaterThan3() {
-      return this.todos.length > 3;
-    },
-    addTodo() {
-      if (!this.newTodo) {
-        console.log(new Error("不能输入空的item"));
-        return;
-      }
-      this.todos.unshift({
-        id: id++,
-        title: this.newTodo,
-        completed: false,
-      });
-      this.newTodo = "";
-    },
-    removeItem(todo) {
-      // 找到待删除项index
-      const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
-      this.todos.splice(toRemoveIndex, 1);
-    },
-    sendAxios() {
-      Axios.get("http://www.baidu.com").then((res) => {
-        console.log(res);
-      });
-    },
-  },
-  directives: {
-    autofocus: {
-      inserted: function (el) {
-        el.focus();
-      },
-    },
+  components: {
+    "todo-item": TodoItem,
   },
   computed: {
     remaining() {
-      return this.todos.filter((x) => {
-        return !x.completed;
-      }).length;
+      return this.todos.filter((x) => !x.completed).length;
     },
-    size() {
-      return this.todos.length;
-    },
-    computedTodo() {
+    computedTodos() {
       const state = this.$route.query.state;
+
       return this.todos
         .filter((x) => {
           if (state === "active") {
@@ -116,7 +73,6 @@ export default {
           } else if (state === "completed") {
             return x.completed;
           } else {
-            // 不做筛选，全返回
             return true;
           }
         })
@@ -129,11 +85,28 @@ export default {
     pluralize(num) {
       return num > 1 ? "items" : "item";
     },
+    total(num) {
+      return num > 3 ? "total" : "";
+    },
   },
-
-  watch: {
-    todos: function (newTodos) {
-      localStorage.setItem("todos", JSON.stringify(newTodos));
+  methods: {
+    addTodo() {
+      if (!this.newTodo) {
+        return;
+      }
+      this.todos.unshift({
+        id: id++,
+        title: this.newTodo,
+        completed: false,
+      });
+      this.newTodo = "";
+    },
+    removeItem(todo) {
+      const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
+      this.todos.splice(toRemoveIndex, 1);
+    },
+    removeCompleted() {
+      this.todos = this.todos.filter((x) => !x.completed);
     },
   },
 };
@@ -142,5 +115,3 @@ export default {
 <style>
 @import "https://unpkg.com/todomvc-app-css@2.1.0/index.css";
 </style>
-
-
