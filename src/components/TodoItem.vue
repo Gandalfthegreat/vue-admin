@@ -31,11 +31,9 @@ export default {
   },
   methods: {
     updateChecked(event) {
-      console.log(event);
       this.$emit("update:completed", event.target.checked);
     },
     editTodo() {
-      console.log(this);
       this.editingTitle = this.title;
       this.isEditing = true;
     },

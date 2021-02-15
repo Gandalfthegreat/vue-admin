@@ -1,11 +1,13 @@
+
+
 <template>
   <div id="app">
     <div class="todoapp">
       <header class="header">
-        <h1>TodoList</h1>
+        <!-- <h1>TodoList</h1> -->
+        <show-item title="component"></show-item>
         <!-- 点击回车，新建一个todo项-->
         <input class="new-todo" @keydown.enter="addTodo" v-model="newTodo" v-autofocus />
-        <a href="#clear-completed">CLick</a>
       </header>
       <section class="main">
         <ul class="todo-list">
@@ -28,18 +30,18 @@
       </section>
       <footer class="footer" v-show="todos.length">
         <span class="todo-count">{{remaining }} {{remaining | pluralize}}</span>
+        <button @click="sendAxios" class="clear-completed">clear</button>
         <ul class="filters">
           <li>
-            <router-link :to="{query: {state: 'active'}}" active-class="selected" exact>Active</router-link>
+            <router-link :to="{query: {state: 'active'}}" exact>Active</router-link>
           </li>
           <li>
-            <router-link :to="{query: {state: 'completed'}}" active-class="selected" exact>Completed</router-link>
+            <router-link :to="{query: {state: 'completed'}}" exact>Complete</router-link>
           </li>
           <li>
-            <router-link :to="{query: {state: ''}}" active-class="selected" exact>All</router-link>
+            <router-link :to="{query: {state: ''}}" exact>All</router-link>
           </li>
         </ul>
-        <button class="clear-completed">clear</button>
       </footer>
     </div>
   </div>
@@ -48,9 +50,12 @@
 <script>
 let id = 1;
 import TodoItem from "../components/TodoItem.vue";
+import ShowItem from "../components/ShowItem.vue";
+import Axios from "axios";
 export default {
   components: {
     "todo-item": TodoItem,
+    "show-item": ShowItem,
   },
   data() {
     return {
@@ -58,43 +63,6 @@ export default {
       newTodo: "",
       editedTodo: {},
     };
-  },
-  directives: {
-    autofocus: {
-      inserted: function (el) {
-        el.focus();
-      },
-    },
-  },
-  computed: {
-    remaining() {
-      return this.todos.filter((x) => !x.completed).length;
-    },
-    size() {
-      return this.todos.length;
-    },
-    computedTodo() {
-      const state = this.$route.query.state;
-      return this.todos
-        .filter((x) => {
-          if (state === "active") {
-            return !x.completed;
-          } else if (state === "completed") {
-            return x.completed;
-          } else return true;
-        })
-        .filter((item) => {
-          return item.title.indexOf(this.newTodo) !== -1;
-        });
-    },
-  },
-  filters: {
-    pluralize(num) {
-      return num > 1 ? "items" : "item";
-    },
-    total(length) {
-      return length > 3 ? "total" : "";
-    },
   },
   methods: {
     greaterThan3() {
@@ -117,9 +85,54 @@ export default {
       const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
       this.todos.splice(toRemoveIndex, 1);
     },
+    sendAxios() {
+      Axios.get("http://www.baidu.com").then((res) => {
+        console.log(res);
+      });
+    },
   },
+  directives: {
+    autofocus: {
+      inserted: function (el) {
+        el.focus();
+      },
+    },
+  },
+  computed: {
+    remaining() {
+      return this.todos.filter((x) => {
+        return !x.completed;
+      }).length;
+    },
+    size() {
+      return this.todos.length;
+    },
+    computedTodo() {
+      const state = this.$route.query.state;
+      return this.todos
+        .filter((x) => {
+          if (state === "active") {
+            return !x.completed;
+          } else if (state === "completed") {
+            return x.completed;
+          } else {
+            // 不做筛选，全返回
+            return true;
+          }
+        })
+        .filter((item) => {
+          return item.title.indexOf(this.newTodo) !== -1;
+        });
+    },
+  },
+  filters: {
+    pluralize(num) {
+      return num > 1 ? "items" : "item";
+    },
+  },
+
   watch: {
-    todos(newTodos) {
+    todos: function (newTodos) {
       localStorage.setItem("todos", JSON.stringify(newTodos));
     },
   },
