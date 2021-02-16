@@ -53,21 +53,21 @@ export default {
     return {
       todos: [],
       newTodo: "",
-      editedTodo: {},
+      editedTodo: {}
     };
   },
   components: {
-    "todo-item": TodoItem,
+    "todo-item": TodoItem
   },
   computed: {
     remaining() {
-      return this.todos.filter((x) => !x.completed).length;
+      return this.todos.filter(x => !x.completed).length;
     },
     computedTodos() {
       const state = this.$route.query.state;
 
       return this.todos
-        .filter((x) => {
+        .filter(x => {
           if (state === "active") {
             return !x.completed;
           } else if (state === "completed") {
@@ -76,10 +76,10 @@ export default {
             return true;
           }
         })
-        .filter((item) => {
+        .filter(item => {
           return item.title.indexOf(this.newTodo) !== -1;
         });
-    },
+    }
   },
   filters: {
     pluralize(num) {
@@ -87,7 +87,7 @@ export default {
     },
     total(num) {
       return num > 3 ? "total" : "";
-    },
+    }
   },
   methods: {
     addTodo() {
@@ -97,21 +97,20 @@ export default {
       this.todos.unshift({
         id: id++,
         title: this.newTodo,
-        completed: false,
+        completed: false
       });
       this.newTodo = "";
     },
     removeItem(todo) {
-      const toRemoveIndex = this.todos.findIndex((item) => item.id === todo.id);
+      const toRemoveIndex = this.todos.findIndex(item => item.id === todo.id);
       this.todos.splice(toRemoveIndex, 1);
     },
     removeCompleted() {
-      this.todos = this.todos.filter((x) => !x.completed);
-    },
-  },
+      this.todos = this.todos.filter(x => !x.completed);
+    }
+  }
 };
 </script>
 
-<style>
-@import "https://unpkg.com/todomvc-app-css@2.1.0/index.css";
+<style scoped>
 </style>
