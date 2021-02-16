@@ -4,7 +4,7 @@
     <el-button v-if="!showDeleteCheckbox" type="primary" @click="updateTableItem()">新增</el-button>
     <el-button
       v-if="showDeleteCheckbox"
-      @click="deleteTableItem(chosenItem); showDeleteCheckbox = fase; chosenItem =[];"
+      @click="deleteTableItem(chosenItem); showDeleteCheckbox= false; chosenItem=[]"
       type="danger"
     >确认删除</el-button>
     <el-button v-if="showDeleteCheckbox" @click="showDeleteCheckbox = false;">取消</el-button>
@@ -17,7 +17,7 @@
         <template slot-scope="scope">
           <el-checkbox
             v-if="showDeleteCheckbox"
-            :checked="chosenItem.indexOf(scope.row.id) > -1"
+            :checked="chosenItem.includes(scope.row.id)"
             @change="toggleChosenItem(scope.row.id)"
             style="margin-right: 5px;"
           ></el-checkbox>
@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     deleteTableItem(idArray) {
-      this.tableData = this.tableData.filter(x => idArray.indexOf(x.id) === -1);
+      this.tableData = this.tableData.filter(x => !idArray.includes(x.id));
     },
     updateTableItem(id) {
       this.$router.push({ name: "ProductEdit", params: { id } });
